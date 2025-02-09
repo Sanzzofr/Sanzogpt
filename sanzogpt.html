@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanzogpt</title>
+    <link rel="stylesheet" href="sanzogpt.css">
+
+</head>
+
+<body>
+    <div class="main">
+        <h1>Sanzogpt</h1>
+        <div id="chatbox"></div>
+        <div class="inputs">
+            <input type="text" id="inputBox" placeholder="Type your message...">
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const inputBox = document.getElementById("inputBox");
+            const sendButton = document.getElementById("sendButton");
+
+            // Click event for the Send button
+            sendButton.addEventListener("click", sendMessage);
+
+            // Keydown event for Enter key
+            inputBox.addEventListener("keypress", function (event) {
+                if (event.key === "Enter" || event.keyCode === 13) {
+                    event.preventDefault(); // Prevent line breaks
+                    sendMessage();
+                }
+            });
+        });
+
+
+    </script>
+    <script type="module">
+        const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+        const API_KEY = "AIzaSyCDF9n9mtSlsa3qsv-VfkCztDZAffj54Vs";
+
+        window.sendMessage = async function () {
+            const inputBox = document.getElementById("inputBox");
+            const chatbox = document.getElementById("chatbox");
+            const userMessage = inputBox.value;
+
+            if (!userMessage) return;
+
+            chatbox.innerHTML += `<div class="message user-message"><strong>You:</strong> ${userMessage}</div>`;
+            chatbox.innerHTML += `<div class="message thinking">Sanzobot is thinking...</div>`;
+            inputBox.value = "";
+
+            try {
+                const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        contents: [{ role: "user", parts: [{ text: userMessage }] }]
+                    })
+                });
+
+                const data = await response.json();
+                document.querySelector(".thinking").remove();
+
+                if (data.candidates && data.candidates.length > 0) {
+                    chatbox.innerHTML += `<div class="message bot-message"><strong>Sanzobot:</strong> ${data.candidates[0].content.parts[0].text}</div>`;
+                } else {
+                    chatbox.innerHTML += `<div class="message bot-message"><strong>Sanzobot:</strong> Error: No response received.</div>`;
+                }
+            } catch (error) {
+                console.error("API Error:", error);
+                document.querySelector(".thinking").remove();
+                chatbox.innerHTML += `<div class="message bot-message"><strong>Sanzobot:</strong> Error: Unable to fetch response.</div>`;
+            }
+
+            chatbox.scrollTop = chatbox.scrollHeight;
+        };
+
+        document.getElementById("sendButton").addEventListener("click", sendMessage);
+    </script>
+</body>
+
+</html>
