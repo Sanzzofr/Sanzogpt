@@ -24,7 +24,7 @@ async function sendMessage() {
 
     try {
         const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-        const API_KEY = "YOUR_API_KEY_HERE"; // Replace with actual API key
+        const API_KEY = "AIzaSyCDF9n9mtSlsa3qsv-VfkCztDZAffj54Vs"; // Replace with actual API key
 
         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
             method: "POST",
